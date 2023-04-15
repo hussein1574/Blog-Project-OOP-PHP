@@ -27,7 +27,7 @@ class Post {
             return $errors;
         }
     }
-    public function readAllPosts()
+    public function readAllPosts($pageNumber)
     {
         $errors = [];
         $query = "SELECT $this->table .* , users.username FROM $this->table LEFT JOIN users ON $this->table.user_id = users.id ORDER BY $this->table.created_at DESC";
@@ -35,6 +35,9 @@ class Post {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
             $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $count = count($posts);
+            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
+            $posts['count'] = $count;
             return $posts;
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
@@ -84,7 +87,7 @@ class Post {
             return $errors;
         }
     }
-    public function readAllMyPosts($userId)
+    public function readAllMyPosts($userId, $pageNumber)
     {
         $errors = [];
         $query = "SELECT $this->table .* , users.username FROM $this->table LEFT JOIN users ON $this->table.user_id = users.id WHERE $this->table.user_id = :user_id ORDER BY $this->table.created_at DESC";
@@ -92,10 +95,30 @@ class Post {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array(':user_id' => $userId));
             $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $count = count($posts);
+            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
+            $posts['count'] = $count;
             return $posts;
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
             return $errors;
         }
+    }
+    public function SearchForPosts($keyword, $pageNumber)
+    {
+        $errors = [];
+        $query = "SELECT $this->table .* , users.username FROM $this->table LEFT JOIN users ON $this->table.user_id = users.id WHERE $this->table.title LIKE :keyword OR $this->table.content LIKE  :keyword ORDER BY $this->table.created_at DESC";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':keyword' => "%$keyword%"));
+            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $count = count($posts);
+            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
+            $posts['count'] = $count;
+            return $posts;
+        } catch(PDOException $e){
+            $errors[] =  "Connection failed: " . $e->getMessage();
+            return $errors;
+        } 
     }
 }

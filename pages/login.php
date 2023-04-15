@@ -82,7 +82,7 @@ if($_POST && isset($_POST['login']) &&  isset($_POST['email']) &&  isset($_POST[
                     <?php if (isset($error)): ?>
                     <div class="alert alert-danger">
                         <ul>
-                            <li><?= $error ?></li>
+                            <li><?= print_r($error); ?></li>
                         </ul>
                     </div>
                     <?php endif ?>
