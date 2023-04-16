@@ -2,6 +2,8 @@
 
 Clean Blog is a minimalistic blog website built with PHP and MySQL. It features a simple and elegant design, with a focus on readability and ease of use.
 
+![image](https://user-images.githubusercontent.com/10996722/232259703-b3c5e236-8a22-41da-b608-e3f11fa190b1.png)
+
 ## Features
 
 - Simple and elegant design
