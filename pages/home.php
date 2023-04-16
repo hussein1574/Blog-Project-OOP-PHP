@@ -22,9 +22,9 @@ $categories = $cat->getCategories();
 if(isset($_GET['page'])){
     $pageNumber = $_GET['page'];
 }
-if($_GET['category'] != ""){
+if(isset($_GET['category']) && $_GET['category'] != ""){
     $category = $_GET['category'];
-    if($_GET['search'] != ""){
+    if(isset($_GET['search'])&&$_GET['search'] != ""){
     $search = $_GET['search'];
     $posts = $post->SearchForPostsByCategory($category, $search, $pageNumber);
 }
@@ -33,7 +33,7 @@ else
     $posts = $post->readAllPostsByCategory($category, $pageNumber);
 }
 }
-elseif($_GET['search'] != ""){
+elseif(isset($_GET['search']) && $_GET['search'] != ""){
     $search = $_GET['search'];
     $posts = $post->SearchForPosts($search, $pageNumber);  
 }
