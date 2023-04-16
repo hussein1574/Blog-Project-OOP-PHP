@@ -22,8 +22,14 @@ $categories = $cat->getCategories();
 if(isset($_GET['page'])){
     $pageNumber = $_GET['page'];
 }
+if(!is_numeric($pageNumber) || $pageNumber < 1)
+    header('Location: /blogs/pages/page_not_found.php');
+
+    
 if(isset($_GET['category']) && $_GET['category'] != ""){
     $category = $_GET['category'];
+    if(!is_numeric($category))
+        header('Location: /blogs/pages/page_not_found.php');
     if(isset($_GET['search'])&&$_GET['search'] != ""){
     $search = $_GET['search'];
     $posts = $post->SearchForPostsByCategory($category, $search, $pageNumber);
@@ -46,6 +52,10 @@ if(!isset($posts['count']))
 }
 else 
 {
+    if(count($posts) == 1 && $posts['count'] == 0 && $category == "")
+    {
+        header('Location: /blogs/pages/page_not_found.php');
+    }
     if($posts['count'] > (count($posts) - 1) + ($pageNumber - 1) * 5)
     {
         $remainingPages = true;
@@ -72,11 +82,10 @@ else
     <div class="container px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
-                <?php if($error === true) : ?>
-                <div class="alert alert-danger" role="alert">
-                    <?php foreach($posts as $post) {echo $post; }  ?>
-                </div>
-                <?php endif ?>
+                <?php if($error === true) {
+                $_SESSION['error'] = $posts;
+                header('Location: /blogs/pages/page_not_found.php');
+            } ?>
                 <!-- Category filter with search form-->
                 <form class="mb-4" method="GET">
                     <div class="input-group">

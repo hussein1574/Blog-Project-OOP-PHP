@@ -17,17 +17,18 @@ if(isset($_POST['submit_comment']))
     if($result === true)
         header('Location: /blogs/pages/post.php?id='.$postId);
     else
-        print_r($result);
+        header('Location: /blogs/pages/page_not_found.php');
 }
 
 
 if (isset($_GET['id'])) {
     if ($postobj->readPost($postId)) {
         $post = $postobj->readPost($postId);
+    }else{
+        header('Location: /blogs/pages/page_not_found.php');
     }
     if ($commentobj->readAllComments($postId)) {
         $comments = $commentobj->readAllComments($postId);
-
     }
 }
 

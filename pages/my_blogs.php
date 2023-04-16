@@ -14,7 +14,10 @@ $error = false;
 if(isset($_GET['page'])){
     $pageNumber = $_GET['page'];
 }
-
+if(!is_numeric($pageNumber) || $pageNumber < 1)
+{
+    header('Location: /blogs/pages/page_not_found.php');
+}
 $posts = $post->readAllMyPosts($_SESSION['user_id'],$pageNumber);
 
 if(!isset($posts['count']))
@@ -23,11 +26,16 @@ if(!isset($posts['count']))
 }
 else 
 {
+    if(count($posts) == 1 && $pageNumber > 1)
+    {
+        header('Location: /blogs/pages/page_not_found.php');
+    }
     if($posts['count'] > (count($posts) - 1) + ($pageNumber - 1) * 5)
     {
         $remainingPages = true;
     }
 }
+
 
 
 ?>
@@ -45,11 +53,10 @@ else
 <div class="container px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
         <div class="col-md-10 col-lg-8 col-xl-7">
-            <?php if($error === true) : ?>
-            <div class="alert alert-danger" role="alert">
-                <?php foreach($posts as $post) {echo $post; }  ?>
-            </div>
-            <?php endif ?>
+            <?php if($error === true) {
+                $_SESSION['error'] = $posts;
+                header('Location: /blogs/pages/page_not_found.php');
+            } ?>
             <!-- Post preview-->
             <?php foreach ($posts as $post) { ?>
             <?php if (!isset($post['id'])) 
