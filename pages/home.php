@@ -1,20 +1,39 @@
 <?php
 include_once 'config/database.php';
 include_once('classes/Post.php');
+include_once('classes/Category.php');
 
 session_start();
 include('includes/header.php');
 include('includes/navbar.php');
 
-$post = new Post($pdo);
 $pageNumber = 1;
 $remainingPages = false;
 $search = "";
+$category = "";
 $error = false;
+
+$cat = new Category($pdo);
+$post = new Post($pdo);
+
+
+
+$categories = $cat->getCategories();
 if(isset($_GET['page'])){
     $pageNumber = $_GET['page'];
 }
-if(isset($_GET['search'])){
+if($_GET['category'] != ""){
+    $category = $_GET['category'];
+    if($_GET['search'] != ""){
+    $search = $_GET['search'];
+    $posts = $post->SearchForPostsByCategory($category, $search, $pageNumber);
+}
+else
+{
+    $posts = $post->readAllPostsByCategory($category, $pageNumber);
+}
+}
+elseif($_GET['search'] != ""){
     $search = $_GET['search'];
     $posts = $post->SearchForPosts($search, $pageNumber);  
 }
@@ -58,14 +77,24 @@ else
                     <?php foreach($posts as $post) {echo $post; }  ?>
                 </div>
                 <?php endif ?>
-                <!-- Search form-->
+                <!-- Category filter with search form-->
                 <form class="mb-4" method="GET">
                     <div class="input-group">
+                        <select class="form-select" name="category">
+                            <option value="">All categories</option>
+                            <?php foreach ($categories as $category) { ?>
+                            <option value="<?= $category['id'] ?>"
+                                <?php if(isset($_GET['category']) && $_GET['category'] == $category['id']) echo 'selected'; ?>>
+                                <?= $category['title'] ?></option>
+                            <?php } ?>
+                        </select>
                         <input type="text" class="form-control" placeholder="Search for posts..." name="search">
                         <button class="btn btn-primary" type="submit">Search</button>
                     </div>
                 </form>
                 <!-- Post preview-->
+                <?php if($posts['count'] == 0) : echo "No Posts" ?>
+                <?php else : ?>
                 <?php foreach ($posts as $post) { ?>
                 <?php if (!isset($post['id'])) 
                     continue;
@@ -81,9 +110,8 @@ else
                         <?php echo $post['created_at']; ?>
                     </p>
                 </div>
-
-
                 <?php } ?>
+                <?php endif ?>
                 <!-- Divider-->
                 <hr class="my-4" />
                 <!-- Pager-->

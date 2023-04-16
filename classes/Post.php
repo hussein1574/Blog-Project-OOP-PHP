@@ -34,11 +34,7 @@ class Post {
         try{
             $stmt = $this->pdo->prepare($query);
             $stmt->execute();
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $count = count($posts);
-            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
-            $posts['count'] = $count;
-            return $posts;
+            return $this->makePaginatedPostsArray($stmt, $pageNumber);
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
             return $errors;
@@ -94,11 +90,7 @@ class Post {
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array(':user_id' => $userId));
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $count = count($posts);
-            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
-            $posts['count'] = $count;
-            return $posts;
+            return $this->makePaginatedPostsArray($stmt, $pageNumber);
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
             return $errors;
@@ -111,14 +103,44 @@ class Post {
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array(':keyword' => "%$keyword%"));
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $count = count($posts);
-            $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
-            $posts['count'] = $count;
-            return $posts;
+            return $this->makePaginatedPostsArray($stmt, $pageNumber);
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
             return $errors;
         } 
+    }
+    public function readAllPostsByCategory($category, $pageNumber)
+    {
+        $errors = [];
+        $query = "SELECT $this->table .* , users.username FROM $this->table LEFT JOIN users ON $this->table.user_id = users.id LEFT JOIN posts_categories ON $this->table.id = posts_categories.post_id WHERE posts_categories.id = :category ORDER BY $this->table.created_at DESC";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':category' => $category));
+            return $this->makePaginatedPostsArray($stmt, $pageNumber);
+        } catch(PDOException $e){
+            $errors[] =  "Connection failed: " . $e->getMessage();
+            return $errors;
+        }
+    }
+    public function SearchForPostsByCategory($category, $search, $pageNumber)
+    {
+        $errors = [];
+        $query = "SELECT $this->table .* , users.username FROM $this->table LEFT JOIN users ON $this->table.user_id = users.id LEFT JOIN posts_categories ON $this->table.id = posts_categories.post_id WHERE posts_categories.id = :category AND ($this->table.title LIKE :keyword OR $this->table.content LIKE  :keyword) ORDER BY $this->table.created_at DESC";
+        try {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':category' => $category, ':keyword' => "%$search%"));
+            return $this->makePaginatedPostsArray($stmt, $pageNumber);
+        } catch(PDOException $e){
+            $errors[] =  "Connection failed: " . $e->getMessage();
+            return $errors;
+        }
+    }
+    public function makePaginatedPostsArray($stmt , $pageNumber)
+    {
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $count = count($posts);
+        $posts = array_slice($posts, ($pageNumber - 1) * 5, 5);
+        $posts['count'] = $count;
+        return $posts;
     }
 }
