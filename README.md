@@ -48,7 +48,3 @@ If you find a bug or have a feature request, please open an issue on the GitHub 
 ## Credits
 
 Clean Blog was created by [Hussein Medhat Farouk]. It is based on the [Clean Blog](https://startbootstrap.com/theme/clean-blog) theme by Start Bootstrap.
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
