@@ -4,17 +4,19 @@ session_start();
 // Include the database connection and Post class
 include_once('../config/database.php');
 include_once('../classes/Post.php');
+include_once('../classes/Category.php');
 include('../includes/header.php');
 include('../includes/navbar.php');
 
-
+$cat = new Category($pdo);
+$categories = $cat->getCategories();
 // Check if the form has been submitted
 if (isset($_POST['add'])) {
     // Create a new Post object and set its properties
     $post = new Post($pdo);
 
     // Attempt to create the post
-    if ($post->createPost($_POST['title'], $_POST['content'], $_SESSION['user_id'])) {
+    if ($post->createPost($_POST['title'], $_POST['content'], $_SESSION['user_id'], $_POST['category'])) {
         // Redirect to the homepage or display a success message
         header('Location: /blogs/index.php');
         exit;
@@ -44,7 +46,18 @@ if (isset($_POST['add'])) {
                 <div class="col-lg-8">
                     <h2 class="fw-bold mb-5">Add Post</h2>
                     <form method="post">
-                        <!-- Email input -->
+
+                        <!-- Category selection -->
+                        <div class="form-outline mb-4">
+                            <label class="form-label" for="category">Category</label>
+                            <select name="category" id="category" class="form-select">
+                                <option value="">Select a category</option>
+                                <?php foreach ($categories as $category) { ?>
+                                <option value="<?= $category['id'] ?>"><?= $category['title'] ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <!-- Title input -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="form3Example3">Title</label>
                             <input name="title" type="text" id="form3Example3" class="form-control" />

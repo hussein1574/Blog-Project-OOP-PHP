@@ -17,7 +17,6 @@ $cat = new Category($pdo);
 $post = new Post($pdo);
 
 
-
 $categories = $cat->getCategories();
 if(isset($_GET['page'])){
     $pageNumber = $_GET['page'];

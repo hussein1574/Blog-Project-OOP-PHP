@@ -9,18 +9,24 @@ class Post {
         $this->pdo = $pdo;
     }
 
-    public function createPost($title, $content, $userId)
+    public function createPost($title, $content, $userId, $categoryId)
     {
         // remove all tags from input
         $content = htmlspecialchars(strip_tags($content));
         $title = htmlspecialchars(strip_tags($title));
         $userId = htmlspecialchars(strip_tags($userId));
+        $categoryId = htmlspecialchars(strip_tags($categoryId));
 
         $errors = [];
         $query = "INSERT INTO $this->table (title, content, user_id) VALUES (:title, :content, :user_id)";
         try{
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array(':title' => $title, ':content' => $content, ':user_id' => $userId));
+
+            $query = "INSERT INTO posts_categories (post_id, category_id) VALUES (:post_id, :category_id)";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':post_id' => $this->pdo->lastInsertId(), ':category_id' => $categoryId));
+            
             return true;
         } catch(PDOException $e){
             $errors[] =  "Connection failed: " . $e->getMessage();
